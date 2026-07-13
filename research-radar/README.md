@@ -14,26 +14,35 @@ writes a digest you can skim in a minute.
 /research-radar keywords="状态空间模型 Mamba" since=30d top=10
 ```
 
-## Register (make `/research-radar` callable)
+## Install (make `/research-radar` callable)
 
-This skill lives in a dev folder Claude Code does **not** scan by default. Skills
-are auto-discovered only from `~/.claude/skills/` (user, global) or
-`<project>/.claude/skills/` (project-scoped). Register with a symlink so the
-source stays put:
+Claude Code auto-discovers skills only from `~/.claude/skills/` (user, global)
+or `<project>/.claude/skills/` (project-scoped). This repo isn't in those paths
+by default, so register `research-radar` with a **symlink** — the source stays
+in your clone, so `git pull` updates flow straight through with no re-register:
 
 ```bash
-ln -s /home/nice/ly/skills/research-radar ~/.claude/skills/research-radar
+# 1. clone anywhere you keep repos
+git clone https://github.com/NiceLy235/skills.git ~/skills
+# 2. symlink the skill into Claude Code's discovery path
+mkdir -p ~/.claude/skills
+ln -s ~/skills/research-radar ~/.claude/skills/research-radar
+# 3. restart Claude Code (skills are indexed at session start)
 ```
 
-Then **restart Claude Code** (skills are indexed at session start — though a
-running session often picks up the symlink on rescan). After that:
+> If you already have the source checked out somewhere else (you're the author,
+> or cloned to a different path), replace `~/skills/research-radar` above with
+> that absolute path — same mechanism.
+
+Then **restart Claude Code** (a running session often picks up the new symlink
+on rescan, but a restart is reliable). After that:
 
 - `/research-radar keywords="..." since=30d top=10` — explicit call, or
-- a matching request ("帮我调研一下 Mamba 最近有什么进展") auto-triggers it.
+- a matching request ("帮我调研一下 Mamba 最近有什么进展" / "survey what's new in Mamba") auto-triggers it.
 
 Verify it's loaded: it shows up in `/help` of a fresh session. Editing files
-under `/home/nice/ly/skills/research-radar/` takes effect immediately via the
-symlink — no re-register needed.
+under the cloned `research-radar/` takes effect immediately via the symlink —
+**no re-register needed**; `git pull` to get updates.
 
 ## Docs & language / 文档与语言
 
@@ -72,7 +81,8 @@ research-radar/
 | drop noise | add `exclude="awesome,survey,reading list"` |
 | add a verified deep-dive | add `deep` (enables the deep-research source) |
 
-Digests land in `~/ly/research/digests/YYYY-MM-DD-<topic>.md`.
+Digests land in `$RESEARCH_RADAR_DIGEST_DIR` (default `~/research/digests/`)
+as `YYYY-MM-DD-<topic>.md`.
 
 ## Manage sources
 

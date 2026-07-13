@@ -81,7 +81,8 @@ selftext) and produce, per item:
 - For models: note downloads/likes and `pipeline_tag` if useful.
 
 **9. Render** the digest (see "Digest output") and Write it to
-`/home/nice/ly/research/digests/YYYY-MM-DD-<topic-slug>.md`
+`<digest-dir>/YYYY-MM-DD-<topic-slug>.md`, where `<digest-dir>` is the
+`RESEARCH_RADAR_DIGEST_DIR` env var if set, else `~/research/digests/`
 (create the dir if missing; `<topic-slug>` = lowercase, non-alnum → `-`,
 truncated ~40 chars). Return the path to the user.
 

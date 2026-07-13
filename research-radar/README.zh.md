@@ -11,23 +11,31 @@
 /research-radar keywords="状态空间模型 Mamba" since=30d top=10
 ```
 
-## 注册（让 `/research-radar` 能被调用）
+## 安装（让 `/research-radar` 能被调用）
 
-本 skill 放在开发目录里，Claude Code **默认不扫描**该目录。skill 只从
-`~/.claude/skills/`（用户级，全局）或 `<项目>/.claude/skills/`（项目级）自动发现。
-用软链注册，真身留在原处：
+Claude Code 只从 `~/.claude/skills/`（用户级，全局）或 `<项目>/.claude/skills/`（项目级）
+自动发现 skill。本仓库默认不在这些路径下，所以用**软链**注册 `research-radar`——
+真身留在你的 clone 里，`git pull` 拉到的更新会直接生效，无需重新注册：
 
 ```bash
-ln -s /home/nice/ly/skills/research-radar ~/.claude/skills/research-radar
+# 1. clone 到你存放仓库的任意位置
+git clone https://github.com/NiceLy235/skills.git ~/skills
+# 2. 把 skill 软链进 Claude Code 的发现路径
+mkdir -p ~/.claude/skills
+ln -s ~/skills/research-radar ~/.claude/skills/research-radar
+# 3. 重启 Claude Code（skill 在会话启动时索引）
 ```
 
-然后**重启 Claude Code**（skill 在会话启动时索引——不过运行中的会话常常会在重扫时自动发现新软链）。之后：
+> 如果你已经把源码放在别处（你是作者，或 clone 到了其他路径），把上面的
+> `~/skills/research-radar` 换成那个绝对路径即可——机制一样。
+
+然后**重启 Claude Code**（运行中的会话常常会在重扫时发现新软链，但重启更稳妥）。之后：
 
 - `/research-radar keywords="..." since=30d top=10` 直接调用，或
 - 匹配的请求（"帮我调研一下 Mamba 最近有什么进展"）自动触发。
 
-验证：新会话的 `/help` 里能看到它。在 `/home/nice/ly/skills/research-radar/` 下改文件
-经 symlink 即时生效，无需重新注册。
+验证：新会话的 `/help` 里能看到它。在 clone 的 `research-radar/` 下改文件经软链即时生效，
+**无需重新注册**；`git pull` 获取更新。
 
 ## 文档与语言 / Docs & language
 
@@ -67,7 +75,7 @@ research-radar/
 | 去噪 | 加 `exclude="awesome,survey,reading list"` |
 | 附带深度验证报告 | 加 `deep`（启用 deep-research 源） |
 
-digest 存到 `~/ly/research/digests/YYYY-MM-DD-<topic>.md`。
+digest 存到 `$RESEARCH_RADAR_DIGEST_DIR`（默认 `~/research/digests/`），文件名 `YYYY-MM-DD-<topic>.md`。
 
 ## 管理信息源
 
