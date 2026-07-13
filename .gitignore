@@ -1,0 +1,13 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# arxiv response cache (default lives in ~/.cache, but be safe if relocated)
+.cache/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+*~

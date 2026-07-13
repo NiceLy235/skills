@@ -1,0 +1,121 @@
+# research-radar — source registry
+# ============================================================================
+# This is THE place to add / remove / wire-up information sources. Edit freely.
+#
+# Each source has a `type`:
+#   script  -> built-in fetcher in scripts/<script>.py (pure stdlib, no deps)
+#   web     -> social-media / crawl source: WebSearch "<query> site:<site>" + webReader
+#   skill   -> delegate to another skill (e.g. deep-research) as a "deep dig" source
+#
+# Common fields:
+#   name      display name + dedupe/footing identity
+#   enabled   false = skip entirely (soft-delete; keep the row for later)
+#   weight    0..1 source trust weight, feeds the score (see references/scoring.md)
+#
+# `script` sources also accept keys that map to CLI flags (see SKILL.md table):
+#   arxiv      categories -> --categories
+#   github     min_stars  -> --min-stars , language -> --language
+#   reddit     subreddits -> --subreddits
+#   hackernews / huggingface : no extra flags
+# Add a `script:` key only when the filename differs from `name`.
+# ============================================================================
+
+defaults:
+  since: 30d
+  top_per_source: 15
+  summary_lang: zh        # zh | en
+  # Optional proxy for `script` sources. When set (non-empty), the orchestrator
+  # prefixes each script run with `http_proxy=<p> https_proxy=<p>` so urllib
+  # routes arxiv/reddit/huggingface through it — the way a non-interactive
+  # Claude Code Bash reaches them without relying on a shell alias. Leave
+  # blank/unset for direct connections (the default). Only affects `script`
+  # sources; `web`/`skill` sources are unaffected.
+  # proxy: http://127.0.0.1:7897
+
+sources:
+  - name: arxiv
+    type: script
+    enabled: true
+    script: arxiv
+    categories: [cs.AI, cs.CL, cs.LG]
+    weight: 1.0
+
+  - name: github
+    type: script
+    enabled: true
+    script: github
+    min_stars: 50
+    language: python
+    weight: 1.0
+
+  - name: hackernews
+    type: script
+    enabled: true
+    script: hn            # filename is scripts/hn.py
+    weight: 0.7
+
+  - name: reddit
+    type: script
+    enabled: true
+    script: reddit
+    subreddits: [MachineLearning, deeplearning]
+    weight: 0.6
+
+  - name: reddit_web
+    type: web
+    enabled: false          # fallback: Reddit via search-engine snippets (no direct
+                            # connection). Enable when reddit.py is IP-blocked
+                            # (SSL unexpected eof) or DNS-sinkholed. WebSearch
+                            # `<q> site:reddit.com` returns post titles + snippets
+                            # through the search engine's own infra, so it works
+                            # even when Reddit TLS-blocks this egress IP.
+    site: reddit.com
+    weight: 0.5
+
+  - name: huggingface
+    type: script
+    enabled: true
+    script: huggingface
+    weight: 0.8
+
+  - name: dblp
+    type: script
+    enabled: true
+    script: dblp
+    weight: 0.9            # clean CS publication index; year-granular date
+    max_fetch: 100
+
+  - name: crossref
+    type: script
+    enabled: true
+    script: crossref
+    weight: 0.8            # broad coverage + citation counts; can be noisy
+    # mailto: you@example.com   # uncomment + set for Crossref polite pool (faster)
+
+  - name: lobsters
+    type: script
+    enabled: true
+    script: lobsters
+    weight: 0.6            # small technical community; newest.json + client filter
+    pages: 3
+
+  - name: zhihu
+    type: web
+    enabled: true
+    site: zhihu.com
+    weight: 0.5
+
+  - name: x_twitter
+    type: web
+    enabled: true
+    site: twitter.com      # also covers x.com; set enabled:false if crawling is blocked
+    weight: 0.5
+
+  # Example of wiring another skill as a "deep dig" source.
+  # Enable with `deep` flag at runtime; input is a refined research question,
+  # output is a cited markdown report appended to the digest.
+  - name: deep_research
+    type: skill
+    enabled: false         # opt-in per run via the `deep` argument
+    skill: deep-research
+    weight: 0.9
