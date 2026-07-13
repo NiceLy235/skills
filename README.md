@@ -104,3 +104,8 @@ ln -s ~/skills/research-radar ~/.claude/skills/research-radar
 
 **更新**：`cd ~/skills && git pull`，软链即时生效。
 **卸载**：`rm ~/.claude/skills/research-radar`（仅删软链，不动源码 clone）。
+
+## License
+
+MIT — see [LICENSE](LICENSE). © 2026 NiceLy235.
+本仓库所有 skill 均按 MIT 协议授权。
